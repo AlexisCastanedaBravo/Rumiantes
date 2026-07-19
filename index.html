@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rumiantes de Carne — Manual de Rancho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bone:#F1EAD8;
+  --paper:#FBF7EC;
+  --ink:#221C14;
+  --ink-soft:#5B4E3D;
+  --line: rgba(34,28,20,.15);
+  --line-strong: rgba(34,28,20,.3);
+
+  --b1:#24402F; --b1-l:#E3EBE1;  /* fundamentos - pasture green */
+  --b2:#7C4A26; --b2-l:#EFE1D0;  /* produccion - hide brown */
+  --b3:#96721B; --b3-l:#F1E7CB;  /* biologia - straw gold */
+  --b4:#9B3B2B; --b4-l:#F2DED9;  /* manejo/calidad - oxide red */
+  --b5:#2C5960; --b5-l:#DDE9EA;  /* inocuidad - clinical teal */
+
+  --accent: var(--b1);
+  --accent-l: var(--b1-l);
+
+  --display: 'Bitter', Georgia, serif;
+  --body: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bone); color:var(--ink); font-family:var(--body);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(34,28,20,.05) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+::selection{ background: var(--straw,#D9A441); color:#1a1408; }
+
+/* ---------- layout shell ---------- */
+.app{ display:grid; grid-template-columns: 280px 1fr; min-height:100vh; }
+@media (max-width: 920px){ .app{ grid-template-columns: 1fr; } }
+
+/* ---------- sidebar ---------- */
+.rail{
+  background: var(--ink); color: var(--bone);
+  padding: 22px 16px 40px; position: sticky; top:0; height:100vh; overflow-y:auto;
+  border-right: 1px solid rgba(0,0,0,.4);
+}
+@media (max-width: 920px){ .rail{ position: static; height:auto; } }
+.rail-brand{ display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+.rail-brand svg{ width:36px; height:36px; flex:none; }
+.rail-brand h1{
+  font-family:var(--display); font-size:15px; line-height:1.15; margin:0; font-weight:800;
+  letter-spacing:.01em; text-transform:uppercase;
+}
+.rail-sub{ font-family:var(--mono); font-size:10px; color:#B9AF9A; letter-spacing:.08em; margin:2px 0 20px; text-transform:uppercase; }
+
+.progress-track{ height:4px; background:rgba(255,255,255,.12); border-radius:3px; margin-bottom:22px; overflow:hidden; }
+.progress-fill{ height:100%; background: var(--straw,#D9A441); width:6.6%; transition:width .35s ease; }
+
+.bloque-group{ margin-bottom:18px; }
+.bloque-label{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color: var(--bl-color, #D9A441); display:flex; align-items:center; gap:6px; margin:0 0 8px 2px;
+}
+.bloque-label::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--bl-color,#D9A441); flex:none; }
+
+.tag{
+  display:flex; align-items:center; gap:9px; width:100%; text-align:left;
+  background:transparent; border:1px solid rgba(255,255,255,.14); color:#EAE3D2;
+  padding:8px 10px; border-radius:5px; margin-bottom:6px; cursor:pointer;
+  font-family:var(--body); font-size:12.5px; font-weight:500; line-height:1.25;
+  transition: background .15s, border-color .15s, transform .1s;
+  position:relative;
+}
+.tag:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.3); }
+.tag:active{ transform: scale(.98); }
+.tag .n{
+  font-family:var(--mono); font-weight:700; font-size:11px; color:#1a1408;
+  background:var(--bl-color,#D9A441); border-radius:3px; padding:2px 5px; flex:none;
+  min-width:22px; text-align:center;
+}
+.tag.active{ background: var(--bl-color,#D9A441); border-color: var(--bl-color,#D9A441); color:#1a1408; font-weight:700; }
+.tag.active .n{ background:#1a1408; color: var(--bl-color,#D9A441); }
+
+/* ---------- main ---------- */
+main{ padding: 34px 5vw 90px; max-width: 980px; }
+.chapter{ display:none; animation: rise .4s ease; }
+.chapter.active{ display:block; }
+@keyframes rise{ from{ opacity:0; transform: translateY(10px);} to{opacity:1; transform:none;} }
+
+.ch-kicker{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+  color: var(--accent); display:flex; align-items:center; gap:10px; margin-bottom:10px;
+}
+.ch-kicker::after{ content:""; height:1px; flex:1; background:var(--line-strong); }
+h2.ch-title{
+  font-family:var(--display); font-weight:900; font-size:clamp(28px,4.4vw,46px);
+  margin:0 0 8px; line-height:1.02; color:var(--ink);
+}
+.ch-lede{ font-size:16.5px; line-height:1.62; color:var(--ink-soft); max-width:68ch; margin: 0 0 30px; }
+.ch-lede strong{ color:var(--ink); font-weight:600; }
+
+h3.sec-title{
+  font-family:var(--display); font-weight:800; font-size:21px; margin: 38px 0 12px;
+  color:var(--ink); display:flex; align-items:baseline; gap:10px;
+}
+h3.sec-title .bar{ width:22px; height:4px; background:var(--accent); border-radius:2px; flex:none; transform:translateY(-4px); }
+h4.sub-title{ font-family:var(--display); font-weight:700; font-size:16.5px; margin:20px 0 8px; color:var(--ink); }
+p{ line-height:1.62; color:var(--ink-soft); font-size:14.8px; }
+p strong{ color:var(--ink); }
+
+/* card */
+.card{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+@media (max-width:720px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+/* chips */
+.chips{ display:flex; flex-wrap:wrap; gap:7px; margin:10px 0 4px; }
+.chip{
+  font-size:12.8px; font-weight:500; padding:6px 11px; border-radius:20px;
+  background: var(--accent-l); color: var(--accent); border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.chip.dark{ background:var(--ink); color:var(--bone); border-color:var(--ink); }
+
+/* stats */
+.stat-row{ display:flex; gap:14px; flex-wrap:wrap; margin: 14px 0 6px; }
+.stat{
+  background:var(--ink); color:var(--bone); border-radius:8px; padding:12px 16px; min-width:150px; flex:1;
+  border-bottom:3px solid var(--accent);
+}
+.stat b{ display:block; font-family:var(--mono); font-size:21px; color: var(--straw,#D9A441); line-height:1.1; }
+.stat span{ font-size:11px; color:#C9C0AE; letter-spacing:.02em; }
+
+/* accordion */
+details.acc{ border:1px solid var(--line); border-radius:9px; margin-bottom:10px; background:var(--paper); overflow:hidden; }
+details.acc summary{
+  list-style:none; cursor:pointer; padding:13px 16px; display:flex; align-items:center; gap:10px;
+  font-family:var(--display); font-weight:700; font-size:15.5px; color:var(--ink);
+}
+details.acc summary::-webkit-details-marker{ display:none; }
+details.acc summary::after{
+  content:"+"; margin-left:auto; font-family:var(--mono); font-size:18px; color:var(--accent); transition: transform .2s;
+}
+details.acc[open] summary::after{ transform: rotate(45deg); }
+details.acc .acc-body{ padding: 4px 18px 16px; border-top:1px dashed var(--line); }
+details.acc summary .tagno{ font-family:var(--mono); font-size:10.5px; color:#fff; background:var(--accent); border-radius:4px; padding:2px 6px; }
+
+/* simple table */
+table.tbl{ width:100%; border-collapse:collapse; font-size:13.3px; margin:14px 0; }
+table.tbl th{ text-align:left; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:#fff; background:var(--ink); padding:9px 10px; }
+table.tbl td{ padding:9px 10px; border-bottom:1px solid var(--line); color:var(--ink-soft); vertical-align:top; }
+table.tbl tr:nth-child(even) td{ background: rgba(0,0,0,.02); }
+table.tbl td:first-child, table.tbl th:first-child{ font-weight:700; color:var(--ink); }
+
+/* nav footer buttons */
+.chapter-nav{ display:flex; justify-content:space-between; align-items:center; margin-top:52px; padding-top:20px; border-top:1px solid var(--line); }
+.navbtn{
+  font-family:var(--mono); font-size:12.5px; background:var(--ink); color:var(--bone); border:none;
+  padding:11px 18px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:8px;
+}
+.navbtn:hover{ background: var(--accent); }
+.navbtn:disabled{ opacity:.25; cursor:default; pointer-events:none; }
+
+/* ---- Ch1: digestive diagram ---- */
+.digest-wrap{ display:flex; gap:6px; align-items:stretch; margin:22px 0 10px; flex-wrap:wrap; }
+.dg{
+  flex:1; min-width:120px; cursor:pointer; border-radius:12px; padding:16px 12px; text-align:center;
+  border:2px solid var(--line); background:var(--paper); transition: all .18s;
+}
+.dg:hover{ border-color: var(--accent); transform:translateY(-3px); }
+.dg.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.dg .dg-icon{ width:34px; height:34px; margin:0 auto 8px; }
+.dg .dg-name{ font-family:var(--display); font-weight:800; font-size:14.5px; }
+.dg .dg-tag{ font-family:var(--mono); font-size:9.5px; opacity:.7; text-transform:uppercase; letter-spacing:.05em; }
+.dg-info{ background:var(--ink); color:var(--bone); border-radius:10px; padding:18px 20px; margin-top:6px; min-height:100px; }
+.dg-info h5{ font-family:var(--display); font-size:17px; margin:0 0 4px; color:var(--straw,#D9A441); }
+.dg-info p{ color:#D6CFBF; font-size:13.6px; margin:6px 0; }
+
+/* ---- rumia cycle ---- */
+.cycle{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:20px 0; counter-reset: step; }
+.cycle .step{
+  background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 12px; position:relative;
+  border-top:4px solid var(--accent);
+}
+.cycle .step::before{ counter-increment:step; content: counter(step); font-family:var(--mono); font-size:11px; color:var(--accent); font-weight:700; }
+.cycle .step h5{ font-family:var(--display); font-size:14.5px; margin:6px 0 4px; }
+.cycle .step p{ font-size:12.6px; margin:0; }
+@media (max-width:720px){ .cycle{ grid-template-columns:1fr 1fr; } }
+
+/* ---- bar compare (ch4) ---- */
+.bars{ margin:20px 0; }
+.bar-row{ display:grid; grid-template-columns:150px 1fr 120px; align-items:center; gap:12px; margin-bottom:14px; }
+.bar-label{ font-family:var(--display); font-weight:700; font-size:14px; }
+.bar-track{ background:var(--line); height:16px; border-radius:8px; overflow:hidden; }
+.bar-fill{ height:100%; border-radius:8px; background: var(--accent); }
+.bar-val{ font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); text-align:right; }
+
+/* ---- estral cycle circular (ch9) ---- */
+.estral{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:18px 0; position:relative; }
+.estral .ph{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px; text-align:center; }
+.estral .ph .days{ font-family:var(--mono); font-size:11px; color:var(--accent); font-weight:700; }
+.estral .ph h5{ font-family:var(--display); font-size:14.5px; margin:5px 0; }
+.estral .ph p{ font-size:12px; margin:0; }
+@media (max-width:720px){ .estral{ grid-template-columns:1fr 1fr; } }
+
+/* gestation timeline */
+.timeline{ position:relative; height:70px; margin:26px 0 10px; }
+.timeline .track{ position:absolute; top:34px; left:0; right:0; height:4px; background:var(--line); border-radius:2px; }
+.timeline .fill{ position:absolute; top:34px; left:0; height:4px; background:var(--accent); border-radius:2px; width:100%; }
+.timeline .pt{ position:absolute; top:24px; width:24px; height:24px; margin-left:-12px; border-radius:50%; background:var(--ink); border:3px solid var(--accent); }
+.timeline .pt-label{ position:absolute; top:-6px; font-family:var(--mono); font-size:11px; white-space:nowrap; color:var(--ink-soft); }
+.timeline .pt-label b{ display:block; color:var(--ink); font-family:var(--display); font-size:13px; }
+
+/* gauge ph (ch12) */
+.ph-gauge{ display:flex; align-items:center; gap:16px; margin:18px 0; }
+.ph-scale{ flex:1; height:22px; border-radius:12px; background: linear-gradient(90deg,#9B3B2B,#D9A441,#3D6B4A,#D9A441,#9B3B2B); position:relative; }
+.ph-scale .mark{ position:absolute; top:-9px; width:3px; height:40px; background:var(--ink); }
+.ph-scale .zone{ position:absolute; top:-14px; font-family:var(--mono); font-size:10px; }
+
+/* disease cards */
+.disease-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-top:14px; }
+.disease{ background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:15px 16px; border-left:4px solid var(--accent); }
+.disease h5{ font-family:var(--display); font-size:15.5px; margin:0 0 2px; display:flex; justify-content:space-between; align-items:center; gap:6px;}
+.disease .agent{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); font-style:italic; margin-bottom:8px; display:block; }
+.zoo-badge{ font-family:var(--mono); font-size:9px; background:var(--b4); color:#fff; padding:2px 6px; border-radius:4px; letter-spacing:.03em; flex:none;}
+.disease p{ font-size:12.6px; margin:5px 0; }
+.disease .lbl{ font-weight:700; color:var(--ink); font-size:11.5px; }
+
+/* icons */
+.icon{ width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.8; }
+
+/* intro hero (chapter 1 gets a special top) */
+.hero-tag{ display:inline-flex; align-items:center; gap:8px; background:var(--ink); color:var(--straw,#D9A441); font-family:var(--mono); font-size:11px; padding:6px 12px; border-radius:20px; margin-bottom:18px; }
+
+.foot{ text-align:center; padding:30px; font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <nav class="rail">
+    <div class="rail-brand">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#D9A441" stroke-width="2">
+        <path d="M8 20c0-4 3-7 7-7 1-3 4-5 7-5s6 2 7 5c4 0 7 3 7 7 3 1 5 4 5 7 0 5-4 9-9 9H12c-5 0-9-4-9-9 0-3 2-6 5-7z"/>
+        <circle cx="17" cy="24" r="1.6" fill="#D9A441"/>
+        <circle cx="31" cy="24" r="1.6" fill="#D9A441"/>
+        <path d="M20 30q4 3 8 0" stroke-linecap="round"/>
+      </svg>
+      <h1>Rumiantes de<br>Carne</h1>
+    </div>
+    <div class="rail-sub">Manual de rancho · 15 capítulos</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <div class="bloque-group" style="--bl-color:#8FAF98">
+      <div class="bloque-label">Bloque I — Fundamentos</div>
+      <button class="tag" data-ch="1"><span class="n">01</span> Introducción a los rumiantes</button>
+      <button class="tag" data-ch="2"><span class="n">02</span> Historia de la ganadería</button>
+      <button class="tag" data-ch="3"><span class="n">03</span> Importancia económica</button>
+    </div>
+    <div class="bloque-group" style="--bl-color:#D2A268">
+      <div class="bloque-label">Bloque II — Producción</div>
+      <button class="tag" data-ch="4"><span class="n">04</span> Sistemas de producción</button>
+      <button class="tag" data-ch="5"><span class="n">05</span> Regiones ecológicas</button>
+      <button class="tag" data-ch="6"><span class="n">06</span> Razas bovinas de carne</button>
+    </div>
+    <div class="bloque-group" style="--bl-color:#D9BE6E">
+      <div class="bloque-label">Bloque III — Biología aplicada</div>
+      <button class="tag" data-ch="7"><span class="n">07</span> Alimentación</button>
+      <button class="tag" data-ch="8"><span class="n">08</span> Mejoramiento genético</button>
+      <button class="tag" data-ch="9"><span class="n">09</span> Reproducción</button>
+    </div>
+    <div class="bloque-group" style="--bl-color:#D08D7C">
+      <div class="bloque-label">Bloque IV — Manejo y calidad</div>
+      <button class="tag" data-ch="10"><span class="n">10</span> Manejo del becerro</button>
+      <button class="tag" data-ch="11"><span class="n">11</span> Bienestar animal</button>
+      <button class="tag" data-ch="12"><span class="n">12</span> Calidad de la canal</button>
+    </div>
+    <div class="bloque-group" style="--bl-color:#7FA8AE">
+      <div class="bloque-label">Bloque V — Inocuidad</div>
+      <button class="tag" data-ch="13"><span class="n">13</span> Sacrificio e inspección</button>
+      <button class="tag" data-ch="14"><span class="n">14</span> Medicina preventiva</button>
+      <button class="tag" data-ch="15"><span class="n">15</span> Enfermedades importantes</button>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main id="main">
+
+  <!-- ============ CAPÍTULO 1 ============ -->
+  <section class="chapter active" data-chapter="1" style="--accent:var(--b1); --accent-l:var(--b1-l);">
+    <div class="ch-kicker">Capítulo 01 · Bloque I</div>
+    <h2 class="ch-title">Introducción a los rumiantes de carne</h2>
+    <p class="ch-lede">Los rumiantes son mamíferos herbívoros del orden <strong>Artiodactyla</strong> con un sistema digestivo capaz de transformar fibra —pastos, forrajes y residuos agrícolas— en proteína de alto valor biológico, gracias a un proceso clave: <strong>la rumia</strong>.</p>
+
+    <div class="chips">
+      <span class="chip">🐄 Bovinos — Bos taurus / Bos indicus</span>
+      <span class="chip">🐑 Ovinos — Ovis aries</span>
+      <span class="chip">🐐 Caprinos — Capra hircus</span>
+      <span class="chip">💦 Búfalos — Bubalus bubalis</span>
+    </div>
+    <p>El <strong>bovino</strong> es la especie de mayor relevancia en producción de carne por su capacidad de convertir grandes volúmenes de forraje en proteína.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Características generales</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4 class="sub-title">Anatómicas</h4>
+        <div class="chips">
+          <span class="chip">Esqueleto fuerte</span><span class="chip">Gran desarrollo muscular</span>
+          <span class="chip">Sistema digestivo complejo</span><span class="chip">4 extremidades de pastoreo</span>
+          <span class="chip">Dentición especializada</span>
+        </div>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">Fisiológicas</h4>
+        <div class="chips">
+          <span class="chip">Fermentación microbiana</span><span class="chip">Producción constante de saliva</span>
+          <span class="chip">Rumia 6–10 h/día</span><span class="chip">Gran capacidad de almacén ruminal</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Anatomía del aparato digestivo</h3>
+    <p>Toca cada compartimento para ver su función:</p>
+    <div class="digest-wrap" id="digestWrap">
+      <div class="dg" data-organ="boca">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><path d="M4 12c2-4 6-6 8-6s6 2 8 6c-2 4-6 6-8 6s-6-2-8-6z"/><path d="M4 12h16"/></svg>
+        <div class="dg-name">Boca</div><div class="dg-tag">inicio</div>
+      </div>
+      <div class="dg" data-organ="esofago">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><path d="M12 3v18M9 6h6M9 18h6"/></svg>
+        <div class="dg-name">Esófago</div><div class="dg-tag">transporte</div>
+      </div>
+      <div class="dg" data-organ="rumen">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/></svg>
+        <div class="dg-name">Rumen</div><div class="dg-tag">100–200 L</div>
+      </div>
+      <div class="dg" data-organ="reticulo">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M4 14h16M9 4v16M14 4v16"/></svg>
+        <div class="dg-name">Retículo</div><div class="dg-tag">redecilla</div>
+      </div>
+      <div class="dg" data-organ="omaso">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M6 7l12 10M6 17L18 7"/></svg>
+        <div class="dg-name">Omaso</div><div class="dg-tag">librillo</div>
+      </div>
+      <div class="dg" data-organ="abomaso">
+        <svg class="dg-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none"><path d="M6 4c0 4-3 5-3 9a9 9 0 0018 0c0-4-3-5-3-9"/></svg>
+        <div class="dg-name">Abomaso</div><div class="dg-tag">verdadero</div>
+      </div>
+    </div>
+    <div class="dg-info" id="dgInfo">
+      <h5>Elige un compartimento ↑</h5>
+      <p>El estómago del bovino tiene 4 cavidades. Un bovino produce entre <strong style="color:#fff">100–180 litros</strong> de saliva al día, la cual estabiliza el pH ruminal.</p>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>La rumia — 4 etapas</h3>
+    <div class="cycle">
+      <div class="step"><h5>Regurgitación</h5><p>El alimento vuelve a la boca.</p></div>
+      <div class="step"><h5>Remasticación</h5><p>El bolo se mastica nuevamente.</p></div>
+      <div class="step"><h5>Reinsalivación</h5><p>Se produce más saliva.</p></div>
+      <div class="step"><h5>Redeglución</h5><p>El alimento regresa al rumen.</p></div>
+    </div>
+    <p>Este ciclo reduce el tamaño de partícula, aumenta la superficie de ataque microbiano y mejora significativamente la digestión de la fibra.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Importancia económica</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4 class="sub-title">Productos del sistema</h4>
+        <div class="chips"><span class="chip">Carne</span><span class="chip">Cuero</span><span class="chip">Gelatina</span><span class="chip">Sebo</span><span class="chip">Harinas animales</span><span class="chip">Empleo rural</span><span class="chip">Divisas de exportación</span></div>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">Aporte nutricional de la carne</h4>
+        <div class="chips"><span class="chip">Proteína</span><span class="chip">Hierro</span><span class="chip">Zinc</span><span class="chip">Fósforo</span><span class="chip">Vitaminas B</span></div>
+      </div>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="navbtn" id="prevBtn" disabled>← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span id="chNow">1</span> / 15</span>
+      <button class="navbtn" id="nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 2 ============ -->
+  <section class="chapter" data-chapter="2" style="--accent:var(--b1); --accent-l:var(--b1-l);">
+    <div class="ch-kicker">Capítulo 02 · Bloque I</div>
+    <h2 class="ch-title">Historia de la ganadería de carne</h2>
+    <p class="ch-lede">Los bovinos actuales descienden del <strong>uro (Bos primigenius)</strong>, especie salvaje de Europa, Asia y el norte de África, domesticada hace aproximadamente <strong>10,000 años</strong>.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Dos linajes, dos vocaciones</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4 class="sub-title">Bos taurus — origen europeo</h4>
+        <div class="chips"><span class="chip">Mayor producción de carne</span><span class="chip">Clima templado</span><span class="chip">Temperamento dócil</span></div>
+        <p style="margin-top:10px"><strong>Razas:</strong> Angus · Hereford · Charolais · Limousin</p>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">Bos indicus — origen sur de Asia</h4>
+        <div class="chips"><span class="chip">Joroba</span><span class="chip">Resistencia al calor</span><span class="chip">Resistencia a parásitos</span><span class="chip">Adaptación al trópico</span></div>
+        <p style="margin-top:10px"><strong>Razas:</strong> Brahman · Nelore · Guzerat · Gyr</p>
+      </div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>De animal de trabajo a especialista en carne</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Uso original</h4><div class="chips"><span class="chip">Trabajo</span><span class="chip">Leche</span><span class="chip">Transporte</span><span class="chip">Cuero</span></div></div>
+      <div class="card"><h4 class="sub-title">Tras la selección genética</h4><div class="chips"><span class="chip">Más masa muscular</span><span class="chip">Mejor conversión alimenticia</span><span class="chip">Crecimiento acelerado</span><span class="chip">Mayor rendimiento en canal</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Ganadería de carne en México</h3>
+    <p>Llegó con los españoles durante el <strong>siglo XVI</strong>. Hoy México posee millones de cabezas distribuidas en casi todo el territorio y exporta ganado en pie y carne, principalmente hacia Estados Unidos.</p>
+    <div class="chips">
+      <span class="chip dark">Veracruz</span><span class="chip dark">Chihuahua</span><span class="chip dark">Sonora</span>
+      <span class="chip dark">Durango</span><span class="chip dark">Jalisco</span><span class="chip dark">Coahuila</span><span class="chip dark">Tamaulipas</span>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Importancia social</h3>
+    <div class="chips"><span class="chip">Genera millones de empleos</span><span class="chip">Impulsa el desarrollo rural</span><span class="chip">Aprovecha tierras no aptas para agricultura</span><span class="chip">Fortalece la seguridad alimentaria</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">2</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 3 ============ -->
+  <section class="chapter" data-chapter="3" style="--accent:var(--b1); --accent-l:var(--b1-l);">
+    <div class="ch-kicker">Capítulo 03 · Bloque I</div>
+    <h2 class="ch-title">Importancia económica y estadísticas</h2>
+    <p class="ch-lede">La carne bovina es una de las principales actividades agropecuarias del planeta por su alto consumo de proteína animal.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4 class="sub-title">Top productores mundiales</h4>
+        <div class="chips"><span class="chip">1 · Estados Unidos</span><span class="chip">2 · Brasil</span><span class="chip">3 · China</span><span class="chip">4 · Unión Europea</span><span class="chip">5 · India</span></div>
+        <p>Brasil es uno de los mayores exportadores gracias a sus extensas áreas de pastoreo.</p>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">Estados con mayor inventario (México)</h4>
+        <div class="chips"><span class="chip dark">Veracruz</span><span class="chip dark">Jalisco</span><span class="chip dark">Chihuahua</span><span class="chip dark">Sonora</span><span class="chip dark">Durango</span><span class="chip dark">Chiapas</span></div>
+      </div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Destino de la producción</h3>
+    <div class="chips"><span class="chip">Mercado nacional</span><span class="chip">Exportación</span><span class="chip">Industria procesadora</span><span class="chip">Restaurantes</span><span class="chip">Supermercados</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Fuentes de ingreso</h3>
+    <div class="chips"><span class="chip">Becerros</span><span class="chip">Novillos</span><span class="chip">Vacas de desecho</span><span class="chip">Carne en canal</span><span class="chip">Carne empacada</span><span class="chip">Subproductos: piel, grasa, vísceras, huesos</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Indicadores productivos clave</h3>
+    <details class="acc"><summary>Ganancia diaria de peso (GDP)</summary><div class="acc-body"><p>Aumento de peso del animal por día.</p></div></details>
+    <details class="acc"><summary>Conversión alimenticia</summary><div class="acc-body"><p>Cantidad de alimento necesaria para producir un kilogramo de peso vivo.</p></div></details>
+    <details class="acc"><summary>Porcentaje de parición</summary><div class="acc-body"><p>Proporción de vacas que paren un becerro respecto al total de hembras en reproducción.</p></div></details>
+    <details class="acc"><summary>Peso al destete</summary><div class="acc-body"><p>Peso del becerro al momento de separarlo de la madre.</p></div></details>
+    <details class="acc"><summary>Peso al sacrificio</summary><div class="acc-body"><p>Peso vivo alcanzado antes del envío al rastro.</p></div></details>
+    <details class="acc"><summary>Rendimiento en canal</summary><div class="acc-body"><p>Porcentaje del peso vivo que se convierte en canal tras el sacrificio.</p></div></details>
+
+    <h3 class="sec-title"><span class="bar"></span>Retos actuales</h3>
+    <div class="chips">
+      <span class="chip">Productividad sin afectar bienestar animal</span><span class="chip">Reducir impacto ambiental</span>
+      <span class="chip">Eficiencia en agua y alimento</span><span class="chip">Sanidad y bioseguridad</span>
+      <span class="chip">Calidad e inocuidad</span><span class="chip">Adaptación al cambio climático</span>
+    </div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">3</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 4 ============ -->
+  <section class="chapter" data-chapter="4" style="--accent:var(--b2); --accent-l:var(--b2-l);">
+    <div class="ch-kicker">Capítulo 04 · Bloque II</div>
+    <h2 class="ch-title">Sistemas de producción de bovinos de carne</h2>
+    <p class="ch-lede">Un sistema de producción integra manejo, alimentación, reproducción, sanidad, instalaciones y administración. Su elección depende del clima, la tierra, el capital, la mano de obra y los objetivos del productor.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Ganancia diaria de peso por sistema</h3>
+    <div class="bars">
+      <div class="bar-row"><div class="bar-label">Extensivo</div><div class="bar-track"><div class="bar-fill" style="width:32%"></div></div><div class="bar-val">0.4–0.8 kg/día</div></div>
+      <div class="bar-row"><div class="bar-label">Semiintensivo</div><div class="bar-track"><div class="bar-fill" style="width:52%"></div></div><div class="bar-val">0.8–1.2 kg/día</div></div>
+      <div class="bar-row"><div class="bar-label">Intensivo (Feedlot)</div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><div class="bar-val">1.4–2.0 kg/día</div></div>
+    </div>
+
+    <details class="acc" open><summary><span class="tagno">1</span>&nbsp; Sistema extensivo</summary>
+      <div class="acc-body">
+        <p>Animales en pastoreo la mayor parte del tiempo; alimentación dependiente del forraje disponible; baja inversión inicial.</p>
+        <div class="grid2">
+          <div><h4 class="sub-title" style="font-size:14px">Ventajas</h4><div class="chips"><span class="chip">Bajo costo</span><span class="chip">Aprovecha pastizales naturales</span><span class="chip">Mayor bienestar animal</span></div></div>
+          <div><h4 class="sub-title" style="font-size:14px">Desventajas</h4><div class="chips"><span class="chip">Producción lenta</span><span class="chip">Dependencia del clima</span><span class="chip">GDP más baja</span></div></div>
+        </div>
+      </div>
+    </details>
+    <details class="acc"><summary><span class="tagno">2</span>&nbsp; Sistema semiintensivo</summary>
+      <div class="acc-body">
+        <p>Combina pastoreo con suplementación energética y proteica en praderas mejoradas, con mayor control nutricional.</p>
+        <div class="grid2">
+          <div><h4 class="sub-title" style="font-size:14px">Ventajas</h4><div class="chips"><span class="chip">Mejor aprovechamiento de forraje</span><span class="chip">Mayor productividad</span><span class="chip">Menor tiempo a sacrificio</span></div></div>
+          <div><h4 class="sub-title" style="font-size:14px">Desventajas</h4><div class="chips"><span class="chip">Mayor costo</span><span class="chip">Requiere mejor administración</span></div></div>
+        </div>
+      </div>
+    </details>
+    <details class="acc"><summary><span class="tagno">3</span>&nbsp; Sistema intensivo (Feedlot)</summary>
+      <div class="acc-body">
+        <p>Animales en corral con dietas totalmente balanceadas y alto contenido energético, buscando máxima producción en el menor tiempo.</p>
+        <div class="grid2">
+          <div><h4 class="sub-title" style="font-size:14px">Ventajas</h4><div class="chips"><span class="chip">Alta GDP</span><span class="chip">Mejor conversión alimenticia</span><span class="chip">Producción uniforme</span><span class="chip">Mayor rendimiento en canal</span></div></div>
+          <div><h4 class="sub-title" style="font-size:14px">Desventajas</h4><div class="chips"><span class="chip">Alta inversión</span><span class="chip">Costo de alimentación elevado</span><span class="chip">Riesgo de enfermedades metabólicas</span></div></div>
+        </div>
+      </div>
+    </details>
+
+    <h3 class="sec-title"><span class="bar"></span>Según la etapa productiva</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Vaca–cría</h4><p>Selección de reproductoras, empadre, gestación, parto, lactancia y destete. Producto final: <strong>becerro destetado</strong>.</p></div>
+      <div class="card"><h4 class="sub-title">Desarrollo</h4><p>Tras el destete se busca desarrollo del esqueleto, formación muscular y adaptación a concentrados.</p></div>
+      <div class="card"><h4 class="sub-title">Engorda / finalización</h4><p>Incrementa el peso y favorece el marmoleo. Dura entre <strong>90 y 180 días</strong>.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Factores que influyen en la productividad</h3>
+    <div class="chips"><span class="chip">Genética</span><span class="chip">Alimentación</span><span class="chip">Agua</span><span class="chip">Clima</span><span class="chip">Sanidad</span><span class="chip">Bienestar animal</span><span class="chip">Manejo del personal</span><span class="chip">Infraestructura</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">4</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 5 ============ -->
+  <section class="chapter" data-chapter="5" style="--accent:var(--b2); --accent-l:var(--b2-l);">
+    <div class="ch-kicker">Capítulo 05 · Bloque II</div>
+    <h2 class="ch-title">Regiones ecológicas para la producción</h2>
+    <p class="ch-lede">La temperatura, la precipitación, la humedad, el suelo y la vegetación determinan qué razas se adaptan mejor y qué sistema de producción conviene en cada región.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <h4 class="sub-title">🌴 Trópico húmedo</h4>
+        <p><strong>Ubicación:</strong> Veracruz, Tabasco, Chiapas, Campeche, Quintana Roo</p>
+        <div class="chips"><span class="chip">&gt;24 °C</span><span class="chip">Alta humedad</span><span class="chip">Lluvias abundantes</span></div>
+        <p style="margin-top:8px"><span class="lbl" style="color:#2C6B3B;font-weight:700">Ventaja:</span> forraje disponible casi todo el año.<br><span class="lbl" style="color:#9B3B2B;font-weight:700">Reto:</span> parásitos, enfermedades por insectos, estrés calórico.</p>
+        <p><strong>Razas:</strong> Brahman · Nelore · Beefmaster · Brangus · Santa Gertrudis</p>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">☀️ Trópico seco</h4>
+        <p>Lluvias estacionales, sequías prolongadas y temperaturas elevadas; la calidad del forraje baja en secas y exige suplementación.</p>
+        <p><strong>Razas:</strong> Brahman · Beefmaster · Brangus</p>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">🌾 Regiones templadas</h4>
+        <p><strong>Ubicación:</strong> Chihuahua, Durango, Zacatecas, Estado de México, Puebla</p>
+        <p>Climas moderados, pastizales de buena calidad, menor incidencia de enfermedades tropicales.</p>
+        <p><strong>Razas:</strong> Angus · Hereford · Charolais · Limousin · Simmental</p>
+      </div>
+      <div class="card">
+        <h4 class="sub-title">🏜️ Áridas y semiáridas</h4>
+        <p>Escasa precipitación, altas temperaturas diurnas y vegetación limitada — exige suplementación y manejo del estrés térmico.</p>
+        <p><strong>Razas:</strong> Brahman · Beefmaster · Brangus · Santa Gertrudis</p>
+      </div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>¿Qué gana una raza bien adaptada?</h3>
+    <div class="chips"><span class="chip">Mayor fertilidad</span><span class="chip">Mejor ganancia de peso</span><span class="chip">Menor mortalidad</span><span class="chip">Mayor resistencia a enfermedades</span><span class="chip">Mejor eficiencia alimenticia</span></div>
+    <p>La adaptación al medio ambiente es uno de los factores más determinantes de la rentabilidad del sistema.</p>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">5</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 6 ============ -->
+  <section class="chapter" data-chapter="6" style="--accent:var(--b2); --accent-l:var(--b2-l);">
+    <div class="ch-kicker">Capítulo 06 · Bloque II</div>
+    <h2 class="ch-title">Principales razas bovinas de carne</h2>
+    <p class="ch-lede">Seleccionadas durante décadas para mejorar crecimiento, conformación muscular, fertilidad, eficiencia alimenticia y calidad de canal. Se agrupan en europeas, cebuinas y sintéticas.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Razas europeas (Bos taurus)</h3>
+    <div class="grid2">
+      <details class="acc" open><summary>Angus — Escocia</summary><div class="acc-body">
+        <div class="chips"><span class="chip">Negro o rojo uniforme</span><span class="chip">Mocho</span><span class="chip">Alto marmoleo</span><span class="chip">Dócil</span></div>
+        <p><strong>Ventajas:</strong> madurez temprana, parto fácil, excelente fertilidad y alta aceptación en el mercado.</p></div></details>
+      <details class="acc"><summary>Hereford — Inglaterra</summary><div class="acc-body">
+        <div class="chips"><span class="chip">Rojo con cara blanca</span><span class="chip">Rústico</span><span class="chip">Buena conversión</span></div>
+        <p><strong>Ventajas:</strong> docilidad, larga vida productiva, excelente rendimiento en pastoreo.</p></div></details>
+      <details class="acc"><summary>Charolais — Francia</summary><div class="acc-body">
+        <div class="chips"><span class="chip">Blanco/crema</span><span class="chip">Gran tamaño</span><span class="chip">Crecimiento rápido</span></div>
+        <p><strong>Ventajas:</strong> alto rendimiento en canal, carne magra abundante, muy usada en cruzas.</p></div></details>
+      <details class="acc"><summary>Limousin — Francia</summary><div class="acc-body">
+        <div class="chips"><span class="chip">Rojo dorado</span><span class="chip">Gran musculatura</span><span class="chip">Poca grasa</span></div>
+        <p><strong>Ventajas:</strong> alto rendimiento en canal, buena eficiencia alimenticia y calidad de carne.</p></div></details>
+      <details class="acc"><summary>Simmental — Suiza</summary><div class="acc-body">
+        <div class="chips"><span class="chip">Doble propósito</span><span class="chip">Gran tamaño</span><span class="chip">Buena capacidad materna</span></div>
+        <p><strong>Ventajas:</strong> crecimiento rápido, buena fertilidad, alta producción de leche para el becerro.</p></div></details>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Razas cebuinas (Bos indicus)</h3>
+    <div class="grid2">
+      <details class="acc" open><summary>Brahman</summary><div class="acc-body">
+        <p>La raza cebuina más importante del mundo.</p>
+        <div class="chips"><span class="chip">Joroba prominente</span><span class="chip">Papada</span><span class="chip">Orejas largas</span><span class="chip">Piel suelta</span></div>
+        <p><strong>Ventajas:</strong> resistencia al calor y a garrapatas, larga vida reproductiva, excelente adaptación tropical.</p></div></details>
+      <details class="acc"><summary>Nelore</summary><div class="acc-body">
+        <p>Originaria de India, muy difundida en Brasil.</p>
+        <div class="chips"><span class="chip">Blanco</span><span class="chip">Buena musculatura</span><span class="chip">Resistente al calor</span></div>
+        <p><strong>Ventajas:</strong> excelente fertilidad, bajo costo de mantenimiento, alta rusticidad.</p></div></details>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Razas sintéticas o compuestas</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Beefmaster</h4><p><span class="lbl">50% Brahman · 25% Hereford · 25% Shorthorn</span></p><div class="chips"><span class="chip">Adaptación</span><span class="chip">Fertilidad</span><span class="chip">Docilidad</span></div></div>
+      <div class="card"><h4 class="sub-title">Brangus</h4><p><span class="lbl">Angus × Brahman</span></p><div class="chips"><span class="chip">Marmoleo</span><span class="chip">Resistencia al calor</span><span class="chip">Buena GDP</span></div></div>
+      <div class="card"><h4 class="sub-title">Santa Gertrudis</h4><p><span class="lbl">Brahman × Shorthorn</span></p><div class="chips"><span class="chip">Gran tamaño</span><span class="chip">Rusticidad</span><span class="chip">Adaptación al calor</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Criterios de selección de raza</h3>
+    <div class="chips"><span class="chip">Adaptación al clima</span><span class="chip">Disponibilidad de alimento</span><span class="chip">Objetivo (cría/desarrollo/engorda)</span><span class="chip">Demanda del mercado</span><span class="chip">Calidad de canal</span><span class="chip">Fertilidad y facilidad de parto</span><span class="chip">Resistencia a enfermedades</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Resumen del capítulo</h3>
+    <table class="tbl">
+      <tr><th>Sistema / Raza</th><th>Característica principal</th><th>Ventaja destacada</th></tr>
+      <tr><td>Extensivo</td><td>Pastoreo en grandes superficies</td><td>Bajo costo de producción</td></tr>
+      <tr><td>Semiintensivo</td><td>Pastoreo con suplementación</td><td>Mejor ganancia de peso</td></tr>
+      <tr><td>Intensivo (Feedlot)</td><td>Dietas balanceadas</td><td>Alta eficiencia y crecimiento rápido</td></tr>
+      <tr><td>Angus</td><td>Carne con alto marmoleo</td><td>Excelente calidad de carne</td></tr>
+      <tr><td>Hereford</td><td>Rústica y dócil</td><td>Buen desempeño en pastoreo</td></tr>
+      <tr><td>Charolais</td><td>Gran desarrollo muscular</td><td>Alto rendimiento en canal</td></tr>
+      <tr><td>Limousin</td><td>Carne magra</td><td>Excelente conformación muscular</td></tr>
+      <tr><td>Brahman</td><td>Adaptación al trópico</td><td>Resistencia al calor y parásitos</td></tr>
+      <tr><td>Beefmaster</td><td>Raza sintética</td><td>Alta fertilidad y rusticidad</td></tr>
+      <tr><td>Brangus</td><td>Angus × Brahman</td><td>Calidad de carne y adaptación</td></tr>
+    </table>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">6</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 7 ============ -->
+  <section class="chapter" data-chapter="7" style="--accent:var(--b3); --accent-l:var(--b3-l);">
+    <div class="ch-kicker">Capítulo 07 · Bloque III</div>
+    <h2 class="ch-title">Alimentación de los bovinos de carne</h2>
+    <p class="ch-lede">La alimentación representa entre el <strong>60% y 70%</strong> de los costos totales de producción y es el factor de mayor impacto en el potencial genético expresado del animal.</p>
+
+    <div class="stat-row">
+      <div class="stat"><b>30–80 L</b><span>Agua consumida al día por un bovino adulto</span></div>
+      <div class="stat"><b>60–70%</b><span>De los costos totales de producción</span></div>
+      <div class="stat"><b>100–180 L</b><span>Saliva producida al día</span></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Microorganismos del rumen</h3>
+    <p>Viven en simbiosis con el bovino: el animal aporta alimento y ambiente, ellos transforman los nutrientes en compuestos aprovechables.</p>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Bacterias</h4><p>Degradan celulosa, almidón y proteínas.</p></div>
+      <div class="card"><h4 class="sub-title">Protozoarios</h4><p>Estabilizan la fermentación y consumen bacterias.</p></div>
+      <div class="card"><h4 class="sub-title">Hongos anaerobios</h4><p>Penetran las fibras vegetales y facilitan su degradación.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Seis nutrientes esenciales</h3>
+    <details class="acc" open><summary>💧 Agua</summary><div class="acc-body"><p>El nutriente más importante: digestión, transporte de nutrientes, regulación térmica y eliminación de desechos.</p></div></details>
+    <details class="acc"><summary>⚡ Energía</summary><div class="acc-body"><p>Necesaria para mantenimiento, crecimiento, reproducción, lactancia y producción de carne.</p><div class="chips"><span class="chip">Maíz</span><span class="chip">Sorgo</span><span class="chip">Cebada</span><span class="chip">Melaza</span><span class="chip">Pastos de calidad</span></div></div></details>
+    <details class="acc"><summary>🥩 Proteínas</summary><div class="acc-body"><p>Aminoácidos para desarrollo muscular, enzimas, hormonas y respuesta inmunitaria.</p><div class="chips"><span class="chip">Pasta de soya</span><span class="chip">Pasta de canola</span><span class="chip">Harina de algodón</span><span class="chip">Alfalfa</span></div></div></details>
+    <details class="acc"><summary>🧂 Minerales</summary><div class="acc-body">
+      <div class="grid2">
+        <div><p class="lbl">Macrominerales</p><div class="chips"><span class="chip">Calcio</span><span class="chip">Fósforo</span><span class="chip">Sodio</span><span class="chip">Magnesio</span><span class="chip">Potasio</span><span class="chip">Cloro</span></div></div>
+        <div><p class="lbl">Microminerales</p><div class="chips"><span class="chip">Zinc</span><span class="chip">Cobre</span><span class="chip">Hierro</span><span class="chip">Manganeso</span><span class="chip">Selenio</span><span class="chip">Yodo</span></div></div>
+      </div></div></details>
+    <details class="acc"><summary>☀️ Vitaminas</summary><div class="acc-body"><p>A, D y E suelen suplementarse por su papel en reproducción, crecimiento e inmunidad.</p></div></details>
+
+    <h3 class="sec-title"><span class="bar"></span>Tipos de alimento</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Forrajes</h4><p>Base de sistemas extensivos y semiintensivos: pasto estrella, bermuda, guinea, alfalfa, rye grass. Aportan la fibra necesaria para la fermentación ruminal.</p></div>
+      <div class="card"><h4 class="sub-title">Heno</h4><p>Forraje deshidratado, usado en épocas de escasez de pasto.</p></div>
+      <div class="card"><h4 class="sub-title">Ensilaje</h4><p>Conservación por fermentación anaerobia (maíz, sorgo, avena) para disponer de alimento todo el año.</p></div>
+      <div class="card"><h4 class="sub-title">Concentrados</h4><p>Alta densidad energética/proteica (maíz, sorgo, pasta de soya, salvado); clave en sistemas intensivos y finalización.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Alimentación según la etapa</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Becerros</h4><p>Calostro en las primeras horas, alimento iniciador y desarrollo temprano del rumen.</p></div>
+      <div class="card"><h4 class="sub-title">Crecimiento</h4><p>Equilibrio energía–proteína para desarrollo muscular y óseo.</p></div>
+      <div class="card"><h4 class="sub-title">Engorda</h4><p>Mayor aporte energético para GDP rápida y mejor marmoleo.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Factores que afectan el consumo</h3>
+    <div class="chips"><span class="chip">Calidad del forraje</span><span class="chip">Temperatura ambiental</span><span class="chip">Disponibilidad de agua</span><span class="chip">Edad</span><span class="chip">Estado fisiológico</span><span class="chip">Salud</span><span class="chip">Estrés</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">7</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 8 ============ -->
+  <section class="chapter" data-chapter="8" style="--accent:var(--b3); --accent-l:var(--b3-l);">
+    <div class="ch-kicker">Capítulo 08 · Bloque III</div>
+    <h2 class="ch-title">Mejoramiento genético</h2>
+    <p class="ch-lede">Consiste en seleccionar y reproducir a los animales con mejores características para incrementar la productividad del hato — más carne, mejor crecimiento, mayor fertilidad y resistencia.</p>
+
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Genética</h4><p>Ciencia que estudia la herencia y la transmisión de características.</p></div>
+      <div class="card"><h4 class="sub-title">Fenotipo</h4><p>Características observables: peso, color, conformación.</p></div>
+      <div class="card"><h4 class="sub-title">Genotipo</h4><p>Información genética que determina el potencial productivo.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Objetivos</h3>
+    <div class="chips"><span class="chip">↑ GDP</span><span class="chip">Eficiencia alimenticia</span><span class="chip">Rendimiento en canal</span><span class="chip">Calidad de carne</span><span class="chip">Fertilidad</span><span class="chip">Menos problemas al parto</span><span class="chip">Resistencia a enfermedades</span><span class="chip">Adaptación ambiental</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Métodos de mejoramiento</h3>
+    <details class="acc" open><summary>Selección</summary><div class="acc-body"><p>Elegir como reproductores solo a los animales con mejores características.</p><div class="chips"><span class="chip">Peso al nacimiento</span><span class="chip">Peso al destete</span><span class="chip">Peso al año</span><span class="chip">Fertilidad</span><span class="chip">Facilidad de parto</span><span class="chip">Conformación muscular</span></div></div></details>
+    <details class="acc"><summary>Cruzamiento</summary><div class="acc-body"><p>Apareamiento entre razas distintas para aprovechar la heterosis (vigor híbrido) y combinar características favorables.</p><p><strong>Ej:</strong> Angus × Brahman = Brangus &nbsp;·&nbsp; Hereford × Brahman = Braford</p></div></details>
+    <details class="acc"><summary>Inseminación artificial (IA)</summary><div class="acc-body"><p>Semen colectado y conservado se deposita en el aparato reproductor de la vaca.</p><div class="chips"><span class="chip">Sementales de alto valor</span><span class="chip">Menor riesgo de ETS</span><span class="chip">Menor costo de mantener toros</span><span class="chip">Mayor control reproductivo</span></div></div></details>
+    <details class="acc"><summary>Transferencia de embriones</summary><div class="acc-body"><p>Embriones de vacas genéticamente superiores se implantan en receptoras, multiplicando su descendencia.</p></div></details>
+    <details class="acc"><summary>Fertilización in vitro (FIV)</summary><div class="acc-body"><p>Óvulos fecundados en laboratorio; los embriones se transfieren a receptoras — acelera el progreso genético.</p></div></details>
+
+    <h3 class="sec-title"><span class="bar"></span>Evaluación genética — DEP</h3>
+    <p>Las <strong>Diferencias Esperadas en la Progenie (DEP)</strong> estiman el desempeño esperado de los descendientes de un reproductor, con base objetiva y no solo apariencia.</p>
+    <div class="chips"><span class="chip">Peso al nacimiento</span><span class="chip">Peso al destete</span><span class="chip">Ganancia de peso</span><span class="chip">Facilidad de parto</span><span class="chip">Rendimiento en canal</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">8</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 9 ============ -->
+  <section class="chapter" data-chapter="9" style="--accent:var(--b3); --accent-l:var(--b3-l);">
+    <div class="ch-kicker">Capítulo 09 · Bloque III</div>
+    <h2 class="ch-title">Reproducción de los bovinos de carne</h2>
+    <p class="ch-lede">La rentabilidad de un rancho depende en gran medida del número de becerros destetados por año. Meta ideal: <strong>un becerro por vaca cada 12 meses</strong>.</p>
+
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Aparato reproductor — hembra</h4><div class="chips"><span class="chip">Ovarios</span><span class="chip">Oviductos</span><span class="chip">Útero</span><span class="chip">Cérvix</span><span class="chip">Vagina</span><span class="chip">Vulva</span></div><p>Los ovarios producen óvulos, estrógenos y progesterona.</p></div>
+      <div class="card"><h4 class="sub-title">Aparato reproductor — macho</h4><div class="chips"><span class="chip">Testículos</span><span class="chip">Epidídimo</span><span class="chip">Conductos deferentes</span><span class="chip">Glándulas accesorias</span><span class="chip">Pene</span><span class="chip">Prepucio</span></div><p>Los testículos producen espermatozoides y testosterona.</p></div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><b>9–15 m</b><span>Pubertad en hembras</span></div>
+      <div class="stat"><b>10–14 m</b><span>Pubertad en machos</span></div>
+      <div class="stat"><b>21 días</b><span>Duración del ciclo estral</span></div>
+      <div class="stat"><b>283 días</b><span>Duración de la gestación</span></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Ciclo estral — 4 fases (21 días)</h3>
+    <div class="estral">
+      <div class="ph"><div class="days">FASE 1</div><h5>Proestro</h5><p>Desarrollo folicular y ↑ estrógenos.</p></div>
+      <div class="ph"><div class="days">FASE 2 · 12–18h</div><h5>Estro (celo)</h5><p>La vaca acepta al macho. Inquietud, muge, moco vulvar, se deja montar.</p></div>
+      <div class="ph"><div class="days">FASE 3</div><h5>Metaestro</h5><p>Ovulación y formación del cuerpo lúteo.</p></div>
+      <div class="ph"><div class="days">FASE 4</div><h5>Diestro</h5><p>Progesterona sostiene una posible gestación; si no hay preñez, reinicia el ciclo.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Métodos de reproducción</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Monta natural</h4><p>El toro detecta el celo y sirve directamente.</p><div class="chips"><span class="chip">Bajo costo</span><span class="chip">Poca tecnología</span></div><p style="margin-top:6px;color:#9B3B2B"><strong>Riesgos:</strong> menor control genético, transmisión de enfermedades, cobertura limitada.</p></div>
+      <div class="card"><h4 class="sub-title">Inseminación artificial</h4><p>Semen de toros de alto mérito genético con servicios sincronizados.</p><div class="chips"><span class="chip">Progreso genético</span><span class="chip">Mejor control</span><span class="chip">Sementales sobresalientes</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Gestación, parto y destete</h3>
+    <div class="timeline">
+      <div class="track"></div><div class="fill"></div>
+      <div class="pt" style="left:2%"><span class="pt-label"><b>Día 0</b>Servicio</span></div>
+      <div class="pt" style="left:98%"><span class="pt-label" style="left:auto;right:0"><b>Día 283</b>Parto</span></div>
+    </div>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Parto — 3 etapas</h4><div class="chips"><span class="chip">1. Dilatación del cérvix</span><span class="chip">2. Expulsión del becerro</span><span class="chip">3. Expulsión de la placenta</span></div><p style="margin-top:8px">El becerro debe tomar calostro en sus primeras horas para inmunidad pasiva.</p></div>
+      <div class="card"><h4 class="sub-title">Lactancia</h4><p>La vaca alimenta al becerro con leche hasta el destete.</p></div>
+      <div class="card"><h4 class="sub-title">Destete</h4><p>Se realiza entre los <strong>6 y 8 meses</strong>, cuando el becerro ya consume suficiente alimento sólido.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Indicadores reproductivos</h3>
+    <div class="chips"><span class="chip">Edad al primer parto</span><span class="chip">Intervalo entre partos</span><span class="chip">Tasa de concepción</span><span class="chip">Tasa de preñez</span><span class="chip">% de parición</span><span class="chip">Mortalidad perinatal</span><span class="chip">Becerros destetados/vaca</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">9</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 10 ============ -->
+  <section class="chapter" data-chapter="10" style="--accent:var(--b4); --accent-l:var(--b4-l);">
+    <div class="ch-kicker">Capítulo 10 · Bloque IV</div>
+    <h2 class="ch-title">Manejo del becerro</h2>
+    <p class="ch-lede">Comprende las prácticas desde el nacimiento hasta el destete para asegurar un crecimiento saludable, minimizar la mortalidad y potenciar el desempeño futuro del animal.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Cuidados inmediatos al nacer</h3>
+    <div class="chips"><span class="chip">Verificar respiración</span><span class="chip">Limpiar vías respiratorias</span><span class="chip">Secar al becerro</span><span class="chip">Desinfectar ombligo (yodo 7% / clorhexidina)</span><span class="chip">Favorecer el vínculo materno</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>El calostro — inmunidad pasiva</h3>
+    <div class="stat-row">
+      <div class="stat"><b>2 h</b><span>Ventana ideal para la primera toma</span></div>
+      <div class="stat"><b>10%</b><span>Del peso vivo en las primeras 24 h</span></div>
+      <div class="stat"><b>24 h</b><span>Cierre de la absorción intestinal de anticuerpos</span></div>
+    </div>
+    <p>Los becerros nacen sin anticuerpos —la placenta bovina no los transfiere durante la gestación— por lo que dependen totalmente del calostro.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Identificación</h3>
+    <div class="chips"><span class="chip">Aretes numerados</span><span class="chip">Tatuajes</span><span class="chip">Marcas a fuego / nitrógeno líquido</span><span class="chip">Microchips</span></div>
+
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Castración</h4><p>Reduce agresividad, facilita el manejo y mejora la distribución de grasa.</p><div class="chips"><span class="chip">Quirúrgica</span><span class="chip">Pinza de Burdizzo</span><span class="chip">Bandas elásticas</span></div></div>
+      <div class="card"><h4 class="sub-title">Descornado / desmoche</h4><p>Reduce lesiones y accidentes, facilita transporte y manejo.</p><div class="chips"><span class="chip">Pasta cáustica</span><span class="chip">Hierro caliente</span><span class="chip">Sierra / descornadora</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Destete</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Tradicional</h4><p>Entre los 6 y 8 meses de edad.</p></div>
+      <div class="card"><h4 class="sub-title">Precoz</h4><p>Entre los 2 y 3 meses, con manejo nutricional especializado.</p></div>
+      <div class="card"><h4 class="sub-title">Temporal</h4><p>Separación breve para favorecer la reproducción de la vaca.</p></div>
+    </div>
+    <p><strong>Factores para un buen destete:</strong></p>
+    <div class="chips"><span class="chip">Peso adecuado</span><span class="chip">Consumo suficiente de sólidos</span><span class="chip">Buen estado sanitario</span><span class="chip">Manejo de bajo estrés</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">10</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 11 ============ -->
+  <section class="chapter" data-chapter="11" style="--accent:var(--b4); --accent-l:var(--b4-l);">
+    <div class="ch-kicker">Capítulo 11 · Bloque IV</div>
+    <h2 class="ch-title">Bienestar animal</h2>
+    <p class="ch-lede">El estado físico y mental del animal frente a sus condiciones de vida no solo es una responsabilidad ética: mejora la productividad, la salud y la calidad de la carne.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Las cinco libertades</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">1 · Libre de hambre y sed</h4><p>Acceso continuo a agua limpia y alimentación adecuada.</p></div>
+      <div class="card"><h4 class="sub-title">2 · Libre de incomodidad</h4><p>Instalaciones limpias, seguras y con protección climática.</p></div>
+      <div class="card"><h4 class="sub-title">3 · Libre de dolor y enfermedad</h4><p>Prevención, diagnóstico y tratamiento oportuno.</p></div>
+      <div class="card"><h4 class="sub-title">4 · Libre para expresar su conducta</h4><p>Espacio suficiente e interacción social.</p></div>
+      <div class="card"><h4 class="sub-title">5 · Libre de miedo y estrés</h4><p>Manejo tranquilo, sin golpes ni gritos.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Manejo de bajo estrés</h3>
+    <p>Los bovinos tienen un amplio campo visual, son sensibles a movimientos bruscos y recuerdan experiencias negativas.</p>
+    <div class="chips"><span class="chip">Sin gritos ni golpes</span><span class="chip">Banderas o tablas de manejo</span><span class="chip">Uso del punto de balance</span><span class="chip">Grupos estables</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Instalaciones</h3>
+    <div class="chips"><span class="chip">Pisos antideslizantes</span><span class="chip">Pasillos amplios</span><span class="chip">Corrales con espacio suficiente</span><span class="chip">Sombras y descanso</span><span class="chip">Bebederos y comederos accesibles</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Transporte</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Buenas prácticas</h4><div class="chips"><span class="chip">No sobrecargar</span><span class="chip">Viajes cortos</span><span class="chip">Ventilación adecuada</span><span class="chip">Revisión previa</span><span class="chip">Carga/descarga con calma</span></div></div>
+      <div class="card"><h4 class="sub-title">Consecuencias del mal transporte</h4><div class="chips"><span class="chip">Pérdida de peso</span><span class="chip">Lesiones</span><span class="chip">Fatiga</span><span class="chip">Más susceptibilidad a enfermedad</span><span class="chip">Peor calidad de carne</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Bienestar previo al sacrificio</h3>
+    <p>Corrales de descanso con acceso a agua y aturdimiento previo obligatorio. Un manejo humanitario reduce el riesgo de carne <strong>DFD</strong> (oscura, firme y seca) asociada al estrés.</p>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">11</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 12 ============ -->
+  <section class="chapter" data-chapter="12" style="--accent:var(--b4); --accent-l:var(--b4-l);">
+    <div class="ch-kicker">Capítulo 12 · Bloque IV</div>
+    <h2 class="ch-title">Calidad de la canal</h2>
+    <p class="ch-lede">La canal es el cuerpo del bovino tras el sacrificio, sin piel, cabeza, extremidades distales ni vísceras. Su calidad define el valor comercial del animal.</p>
+
+    <div class="stat-row">
+      <div class="stat"><b>55–65%</b><span>Rendimiento en canal típico</span></div>
+      <div class="stat"><b>5.4–5.8</b><span>pH final óptimo</span></div>
+    </div>
+    <div class="card" style="margin-top:6px"><p style="margin:0"><strong>Rendimiento en canal (%) = </strong>(Peso de la canal / Peso vivo) × 100</p></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Factores que afectan la calidad</h3>
+    <div class="grid3">
+      <div class="card"><h4 class="sub-title">Genética</h4><p>Razas especializadas: mayor desarrollo muscular y conformación.</p></div>
+      <div class="card"><h4 class="sub-title">Alimentación</h4><p>Dietas equilibradas favorecen crecimiento y marmoleo.</p></div>
+      <div class="card"><h4 class="sub-title">Edad</h4><p>Animales jóvenes → carne más tierna.</p></div>
+      <div class="card"><h4 class="sub-title">Sexo</h4><p>Machos enteros: más músculo. Castrados: mejor distribución de grasa.</p></div>
+      <div class="card"><h4 class="sub-title">Manejo previo</h4><p>Ayuno, transporte y estrés afectan directamente el pH final.</p></div>
+      <div class="card"><h4 class="sub-title">Cobertura de grasa</h4><p>Protege en refrigeración; el exceso baja el rendimiento comercial.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>pH post-mortem</h3>
+    <div class="ph-gauge">
+      <span style="font-family:var(--mono);font-size:11px">5.0</span>
+      <div class="ph-scale"><div class="mark" style="left:40%"></div><div class="mark" style="left:58%"></div></div>
+      <span style="font-family:var(--mono);font-size:11px">7.0</span>
+    </div>
+    <p>Tras el sacrificio, el glucógeno muscular se convierte en ácido láctico, bajando el pH. Un pH final de <strong>5.4–5.8</strong> da carne tierna y de buena conservación. Si hubo estrés intenso previo, el glucógeno se agota y el pH queda alto → carne <strong>DFD</strong> (Dark, Firm, Dry): oscura, firme, seca y de menor vida útil.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Marmoleo y color</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Marmoleo</h4><p>Grasa intramuscular que aumenta jugosidad, sabor, terneza y valor comercial. Angus destaca por su alto marmoleo.</p></div>
+      <div class="card"><h4 class="sub-title">Color</h4><p>Depende de la mioglobina muscular; una carne de buena calidad presenta color rojo brillante.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Por qué importa una canal de calidad</h3>
+    <div class="chips"><span class="chip">Mayor rendimiento económico</span><span class="chip">Mejor aceptación del consumidor</span><span class="chip">Mayor valor de mercado</span><span class="chip">Mejores características sensoriales y de conservación</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">12</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 13 ============ -->
+  <section class="chapter" data-chapter="13" style="--accent:var(--b5); --accent-l:var(--b5-l);">
+    <div class="ch-kicker">Capítulo 13 · Bloque V</div>
+    <h2 class="ch-title">Sacrificio e inspección sanitaria</h2>
+    <p class="ch-lede">Etapa final del sistema de producción, regulada para minimizar el sufrimiento animal, evitar contaminación de la canal y garantizar carne inocua y trazable.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>La ruta hacia el rastro</h3>
+    <div class="cycle">
+      <div class="step"><h5>Ayuno previo</h5><p><span style="font-family:var(--mono);color:var(--accent)">12–24 h</span> con acceso a agua; reduce contenido gastrointestinal.</p></div>
+      <div class="step"><h5>Transporte</h5><p>Sin golpes, sin sobrecarga, buena ventilación, conducción tranquila.</p></div>
+      <div class="step"><h5>Recepción y descanso</h5><p>Corrales de descanso, revisión de salud, acceso a agua.</p></div>
+      <div class="step"><h5>Aturdimiento</h5><p>Pistola de perno cautivo (lo más común) o eléctrico. Pérdida instantánea de conciencia.</p></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Sangrado</h4><p>Sección de los grandes vasos del cuello tras el aturdimiento; elimina la sangre, que favorece el crecimiento bacteriano si permanece en el tejido.</p></div>
+      <div class="card"><h4 class="sub-title">Faenado</h4><div class="chips"><span class="chip">Desuello</span><span class="chip">Corte de cabeza</span><span class="chip">Retiro de extremidades</span><span class="chip">Eviscerado</span><span class="chip">División de la canal</span><span class="chip">Lavado</span></div></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Refrigeración</h3>
+    <div class="stat-row"><div class="stat"><b>0–4 °C</b><span>Cámaras frigoríficas post-sacrificio</span></div></div>
+    <div class="chips"><span class="chip">Reduce crecimiento bacteriano</span><span class="chip">Favorece maduración</span><span class="chip">Mejora terneza</span><span class="chip">Incrementa vida útil</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Inspección veterinaria</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Ante mortem</h4><p>Antes del sacrificio: estado general, comportamiento, condición corporal, lesiones, signos clínicos. Animales enfermos pueden rechazarse u observarse.</p></div>
+      <div class="card"><h4 class="sub-title">Post mortem</h4><p>Se inspeccionan canal, vísceras, ganglios linfáticos, pulmones, hígado, corazón y riñones para detectar riesgos a la salud pública.</p></div>
+    </div>
+    <div class="chips"><span class="chip">Detecta zoonosis</span><span class="chip">Evita comercializar carne contaminada</span><span class="chip">Protege la salud del consumidor</span><span class="chip">Cumple normas nacionales e internacionales</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">13</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 14 ============ -->
+  <section class="chapter" data-chapter="14" style="--accent:var(--b5); --accent-l:var(--b5-l);">
+    <div class="ch-kicker">Capítulo 14 · Bloque V</div>
+    <h2 class="ch-title">Medicina preventiva</h2>
+    <p class="ch-lede">Es más rentable prevenir una enfermedad que tratarla. Un buen programa sanitario aumenta la productividad, mejora el bienestar y reduce el uso de medicamentos.</p>
+
+    <h3 class="sec-title"><span class="bar"></span>Objetivos</h3>
+    <div class="chips"><span class="chip">Animales sanos</span><span class="chip">Reducir pérdidas económicas</span><span class="chip">Mayor eficiencia productiva</span><span class="chip">Proteger la salud pública</span><span class="chip">Menos uso de antibióticos</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Bioseguridad</h3>
+    <div class="chips"><span class="chip">Control de ingreso de personas</span><span class="chip">Cuarentena a animales nuevos</span><span class="chip">Limpieza y desinfección</span><span class="chip">Control de vehículos</span><span class="chip">Eliminación adecuada de cadáveres</span><span class="chip">Manejo del estiércol</span><span class="chip">Control de fauna y plagas</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Vacunación y desparasitación</h3>
+    <div class="grid2">
+      <div class="card"><h4 class="sub-title">Vacunación</h4><p>Calendario elaborado por el médico veterinario: disminuye mortalidad, reduce pérdidas, protege al hato y facilita el comercio.</p></div>
+      <div class="card"><h4 class="sub-title">Desparasitación</h4>
+        <p class="lbl">Internos</p><div class="chips"><span class="chip">Nematodos</span><span class="chip">Tenias</span><span class="chip">Fasciola hepática</span></div>
+        <p class="lbl" style="margin-top:8px">Externos</p><div class="chips"><span class="chip">Garrapatas</span><span class="chip">Moscas</span><span class="chip">Piojos</span><span class="chip">Ácaros</span></div>
+      </div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Manejo y registros sanitarios</h3>
+    <div class="chips"><span class="chip">Observación diaria</span><span class="chip">Aislamiento de enfermos</span><span class="chip">Tratamiento oportuno</span><span class="chip">Limpieza constante</span><span class="chip">Registros de vacunación</span><span class="chip">Registros de mortalidad y necropsias</span></div>
+
+    <h3 class="sec-title"><span class="bar"></span>Uso responsable de medicamentos</h3>
+    <p>El uso inadecuado de antibióticos favorece bacterias resistentes.</p>
+    <div class="chips"><span class="chip">Solo con prescripción veterinaria</span><span class="chip">Respetar dosis y tiempos de retiro</span><span class="chip">Evitar la automedicación</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">14</span> / 15</span>
+      <button class="navbtn nextBtn">Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- ============ CAPÍTULO 15 ============ -->
+  <section class="chapter" data-chapter="15" style="--accent:var(--b5); --accent-l:var(--b5-l);">
+    <div class="ch-kicker">Capítulo 15 · Bloque V</div>
+    <h2 class="ch-title">Enfermedades de importancia</h2>
+    <p class="ch-lede">Las enfermedades son la principal causa de pérdidas económicas en la ganadería y algunas comprometen la salud pública. Su control se basa en vacunación, bioseguridad y vigilancia.</p>
+    <div class="chips"><span class="zoo-badge" style="padding:4px 8px">ZOONOSIS</span><span style="font-size:12.6px;color:var(--ink-soft)">= puede transmitirse al ser humano</span></div>
+
+    <div class="disease-grid">
+      <div class="disease"><h5>Brucelosis bovina <span class="zoo-badge">ZOONOSIS</span></h5><span class="agent">Brucella abortus</span>
+        <p><span class="lbl">Transmisión:</span> fetos abortados, placenta, secreciones uterinas, leche.</p>
+        <p><span class="lbl">Signos:</span> abortos, retención de placenta, infertilidad.</p>
+        <p><span class="lbl">Prevención:</span> vacunación de hembras jóvenes, eliminar positivos.</p></div>
+
+      <div class="disease"><h5>Tuberculosis bovina <span class="zoo-badge">ZOONOSIS</span></h5><span class="agent">Mycobacterium bovis</span>
+        <p><span class="lbl">Transmisión:</span> inhalación, contacto directo, leche.</p>
+        <p><span class="lbl">Signos:</span> tos crónica, adelgazamiento, debilidad.</p>
+        <p><span class="lbl">Prevención:</span> prueba de tuberculina, bioseguridad.</p></div>
+
+      <div class="disease"><h5>Carbón sintomático</h5><span class="agent">Clostridium chauvoei</span>
+        <p>Afecta animales jóvenes.</p>
+        <p><span class="lbl">Signos:</span> inflamación muscular, cojera, fiebre, muerte súbita.</p>
+        <p><span class="lbl">Prevención:</span> vacunación anual.</p></div>
+
+      <div class="disease"><h5>Leptospirosis <span class="zoo-badge">ZOONOSIS</span></h5><span class="agent">Leptospira spp.</span>
+        <p><span class="lbl">Signos:</span> abortos, infertilidad, fiebre, ↓ producción.</p>
+        <p><span class="lbl">Prevención:</span> vacunación, control de roedores, agua limpia.</p></div>
+
+      <div class="disease"><h5>Rabia paralítica bovina</h5><span class="agent">Transmitida por Desmodus rotundus</span>
+        <p><span class="lbl">Signos:</span> parálisis progresiva, salivación, dificultad para caminar, muerte.</p>
+        <p><span class="lbl">Prevención:</span> vacunación en zonas endémicas, control del murciélago.</p></div>
+
+      <div class="disease"><h5>Complejo Respiratorio Bovino</h5><span class="agent">Multifactorial: virus + bacterias</span>
+        <p><span class="lbl">Factores:</span> estrés, transporte, hacinamiento, cambios de temperatura.</p>
+        <p><span class="lbl">Prevención:</span> vacunación, ventilación, buena nutrición.</p></div>
+
+      <div class="disease"><h5>Mastitis</h5><span class="agent">Más común en lecheras, también en vacas de carne</span>
+        <p><span class="lbl">Signos:</span> inflamación de ubre, dolor, leche alterada.</p>
+        <p><span class="lbl">Prevención:</span> higiene y revisión periódica.</p></div>
+
+      <div class="disease"><h5>Parasitismo gastrointestinal</h5><span class="agent">Nematodos y otros</span>
+        <p><span class="lbl">Signos:</span> diarrea, pérdida de peso, anemia.</p>
+        <p><span class="lbl">Prevención:</span> desparasitación estratégica, rotación de potreros.</p></div>
+
+      <div class="disease"><h5>Garrapatas</h5><span class="agent">Vector de babesiosis y anaplasmosis</span>
+        <p><span class="lbl">Daño:</span> ↓ GDP, daño en piel, transmisión de enfermedad.</p>
+        <p><span class="lbl">Control:</span> baños garrapaticidas, rotación de productos, razas resistentes.</p></div>
+    </div>
+
+    <h3 class="sec-title"><span class="bar"></span>Beneficio de la prevención sanitaria</h3>
+    <div class="chips"><span class="chip">Reduce mortalidad</span><span class="chip">Baja costos de tratamiento</span><span class="chip">Mejora productividad</span><span class="chip">Garantiza carne inocua</span><span class="chip">Incrementa la rentabilidad</span></div>
+
+    <div class="chapter-nav">
+      <button class="navbtn prevBtn">← Anterior</button>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--ink-soft)">Cap. <span class="chNow">15</span> / 15</span>
+      <button class="navbtn" id="nextBtnLast" disabled>Fin →</button>
+    </div>
+  </section>
+
+  <div class="foot">Manual de Rancho · Rumiantes de Carne — infografía didáctica de estudio</div>
+  </main>
+</div>
+
+<script>
+const total = 15;
+let current = 1;
+const tags = document.querySelectorAll('.tag');
+const chapters = document.querySelectorAll('.chapter');
+const progressFill = document.getElementById('progressFill');
+const chNowEls = document.querySelectorAll('#chNow, .chNow');
+
+function showChapter(n){
+  n = Math.max(1, Math.min(total, n));
+  current = n;
+  chapters.forEach(c => c.classList.toggle('active', +c.dataset.chapter === n));
+  tags.forEach(t => t.classList.toggle('active', +t.dataset.ch === n));
+  progressFill.style.width = (n/total*100) + '%';
+  chNowEls.forEach(el => el.textContent = n);
+  document.getElementById('main').scrollTo({top:0, behavior:'smooth'});
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+tags.forEach(t => t.addEventListener('click', () => showChapter(+t.dataset.ch)));
+document.querySelectorAll('.prevBtn, #prevBtn').forEach(b => b.addEventListener('click', () => showChapter(current-1)));
+document.querySelectorAll('.nextBtn, #nextBtn').forEach(b => b.addEventListener('click', () => showChapter(current+1)));
+
+showChapter(1);
+
+// digestive diagram interactivity (chapter 1)
+const organData = {
+  boca: {name:'Boca', text:'Aquí inicia la digestión: cortar el pasto, masticar y mezclar con saliva. Un bovino produce entre 100–180 litros de saliva al día, estabilizando el pH del rumen.'},
+  esofago: {name:'Esófago', text:'Transporta el alimento hacia el rumen y permite su regreso a la boca durante la rumia.'},
+  rumen: {name:'Rumen', text:'El compartimento más grande (100–200 L en adultos). Aquí ocurre la fermentación del alimento, producción de ácidos grasos volátiles, proteína microbiana y vitaminas del complejo B. Vive poblado de bacterias, protozoarios y hongos anaerobios que degradan la celulosa.'},
+  reticulo: {name:'Retículo ("redecilla")', text:'Retiene partículas grandes, forma el bolo alimenticio y participa en la rumia. Es el sitio típico de la reticuloperitonitis traumática.'},
+  omaso: {name:'Omaso ("librillo")', text:'Absorbe agua y minerales, y reduce el tamaño de las partículas alimenticias antes de pasar al abomaso.'},
+  abomaso: {name:'Abomaso', text:'El "verdadero" estómago glandular. Aquí ocurre la digestión química con ácido clorhídrico, pepsina y lipasas — función muy similar al estómago humano.'}
+};
+const dgEls = document.querySelectorAll('.dg');
+const dgInfo = document.getElementById('dgInfo');
+dgEls.forEach(el=>{
+  el.addEventListener('click', ()=>{
+    dgEls.forEach(e=>e.classList.remove('on'));
+    el.classList.add('on');
+    const d = organData[el.dataset.organ];
+    dgInfo.innerHTML = `<h5>${d.name}</h5><p>${d.text}</p>`;
+  });
+});
+</script>
+</body>
+</html>
